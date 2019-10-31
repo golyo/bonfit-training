@@ -1,4 +1,3 @@
-
 <!-- A grey horizontal navbar that becomes vertical on small screens -->
 <nav class="navbar navbar-expand-sm navbar-dark bg-primary" id="mainNav">
   <div class="container">
@@ -6,7 +5,9 @@
       <span class="main-header">BonfitTraining</span><br/>
       <span class="sub-header">Csoportos funkcionális edzés</span>
     </a>
-    <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-toggle="collapse"
+            data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+            aria-label="Toggle navigation">
       Menu
       <i class="fas fa-bars"></i>
     </button>
@@ -32,6 +33,6 @@
   </div>
 </nav>
 
-<div class="container">
-  <router-outlet></router-outlet>
+<div [@routeAnimations]="prepareRoute(outlet)">
+  <router-outlet #outlet="outlet"></router-outlet>
 </div>

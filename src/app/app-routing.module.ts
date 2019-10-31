@@ -15,23 +15,28 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    component: HomeComponent
+    component: HomeComponent,
+    data: { animation: 'home' }
   },
   {
     path: 'trainings',
-    component: TrainingsComponent
+    component: TrainingsComponent,
+    data: { animation: 'trainings' }
   },
   {
     path: 'calendar',
-    component: CalendarComponent
+    component: CalendarComponent,
+    data: { animation: 'calendar' }
   },
   {
     path: 'blog',
-    component: BlogComponent
+    component: BlogComponent,
+    data: { animation: 'blog' }
   },
   {
     path: 'about',
-    component: AboutComponent
+    component: AboutComponent,
+    data: {animation: 'about'}
   }
 ];
 
