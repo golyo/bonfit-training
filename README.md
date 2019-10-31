@@ -1,2 +1,0 @@
-# bonfit-training
-Bonfit Training 
