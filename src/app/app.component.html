@@ -1,0 +1,37 @@
+
+<!-- A grey horizontal navbar that becomes vertical on small screens -->
+<nav class="navbar navbar-expand-sm navbar-dark bg-primary" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/home">
+      <span class="main-header">BonfitTraining</span><br/>
+      <span class="sub-header">Csoportos funkcionális edzés</span>
+    </a>
+    <button class="navbar-toggler navbar-toggler-right collapsed" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      Menu
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav text-uppercase ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home">Bemutatkozás</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/trainings">Tréningek</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/calendar">Órarend</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/blog">Blog</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/about">Információ</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
