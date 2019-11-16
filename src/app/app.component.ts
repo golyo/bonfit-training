@@ -11,6 +11,7 @@ import {fader, slider, stepper} from './animations';
   ]
 })
 export class AppComponent {
+  isNavbarCollapsed = true;
   prepareRoute(outlet: RouterOutlet) {
     return outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation;
   }
