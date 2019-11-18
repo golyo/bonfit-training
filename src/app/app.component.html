@@ -16,8 +16,15 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/myself">Bemutatkozás</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/trainings">Tréningek</a>
+        <li class="nav-item" #trainingDrop="ngbDropdown" ngbDropdown>
+          <a class="nav-link" routerLink="/trainings" ngbDropdownToggle  id="trainingMenu" role="button"
+             (mouseover)="$event.stopPropagation();trainingDrop.open()">Tréningek</a>
+          <div ngbDropdownMenu aria-labelledby="trainingMenu" class="dropdown-menu" (mouseleave)="$event.stopPropagation();trainingDrop.close()">
+            <a ngbDropdownItem routerLink="/triplex-training">Triplex Training</a>
+            <a ngbDropdownItem routerLink="/bonfit-training">Bonfit Training</a>
+            <a ngbDropdownItem routerLink="/triplex-office">Triplex Office</a>
+            <a ngbDropdownItem routerLink="/triplex-mobility">Triplex Mobility</a>
+          </div>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/calendar">Órarend</a>
