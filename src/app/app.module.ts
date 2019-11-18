@@ -10,6 +10,7 @@ import { CalendarComponent } from './pages/calendar/calendar.component';
 import { BlogComponent } from './pages/blog/blog.component';
 import { AboutComponent } from './pages/about/about.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { MyselfComponent } from './pages/myself/myself.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     TrainingsComponent,
     CalendarComponent,
     BlogComponent,
-    AboutComponent
+    AboutComponent,
+    MyselfComponent
   ],
   imports: [
     BrowserModule,

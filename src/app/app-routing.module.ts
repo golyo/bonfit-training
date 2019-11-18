@@ -5,6 +5,7 @@ import {TrainingsComponent} from './pages/trainings/trainings.component';
 import {CalendarComponent} from './pages/calendar/calendar.component';
 import {BlogComponent} from './pages/blog/blog.component';
 import {AboutComponent} from './pages/about/about.component';
+import {MyselfComponent} from './pages/myself/myself.component';
 
 
 const routes: Routes = [
@@ -16,6 +17,11 @@ const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+    data: { animation: 'home' }
+  },
+  {
+    path: 'myself',
+    component: MyselfComponent,
     data: { animation: 'home' }
   },
   {
