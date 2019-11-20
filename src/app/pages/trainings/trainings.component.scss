@@ -1,8 +1,11 @@
-.trainings {
-  .card {
-    margin-top: 10px;
+.trainings .card {
     background-color: inherit;
     border: none;
-    margin: 4rem;
+    margin: 15%;
+}
+
+@media only screen and (max-width: 600px) {
+  .trainings .card {
+    margin: 5%;
   }
 }
