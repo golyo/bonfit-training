@@ -15,6 +15,7 @@ import { TriplexTrainingComponent } from './pages/trainings/triplex-training/tri
 import { TriplexOfficeComponent } from './pages/trainings/triplex-office/triplex-office.component';
 import { TriplexMobilityComponent } from './pages/trainings/triplex-mobility/triplex-mobility.component';
 import { BonfitTrainingComponent } from './pages/trainings/bonfit-training/bonfit-training.component';
+import {NgxDocViewerModule} from 'ngx-doc-viewer';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { BonfitTrainingComponent } from './pages/trainings/bonfit-training/bonfi
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    NgbModule
+    NgbModule,
+    NgxDocViewerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col-6">
+    <div class="col-4">
       <ngb-accordion [closeOthers]="true" activeIds="food">
         <ngb-panel id="food" title="Táplálkozás">
           <ng-template ngbPanelContent>
@@ -32,8 +32,8 @@
       </ngb-accordion>
     </div>
 
-    <div class="col-6">
-      <img src="assets/images/bonfit.jpg" class="card-img-top" alt="...">
+    <div class="col-8">
+      <ngx-doc-viewer [url]="'https://localhost:4200/assets/blogs/test.docx'" viewer="google" style="width:100%;height:100%;"></ngx-doc-viewer>
     </div>
   </div>
 </div>
