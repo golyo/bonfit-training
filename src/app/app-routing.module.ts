@@ -10,6 +10,7 @@ import {TriplexTrainingComponent} from './pages/trainings/triplex-training/tripl
 import {BonfitTrainingComponent} from './pages/trainings/bonfit-training/bonfit-training.component';
 import {TriplexOfficeComponent} from './pages/trainings/triplex-office/triplex-office.component';
 import {TriplexMobilityComponent} from './pages/trainings/triplex-mobility/triplex-mobility.component';
+import {TestComponent} from './pages/test/test.component';
 
 
 const routes: Routes = [
@@ -62,6 +63,11 @@ const routes: Routes = [
     path: 'blog',
     component: BlogComponent,
     data: { animation: 'blog' }
+  },
+  {
+    path: 'test',
+    component: TestComponent,
+    data: { animation: 'test' }
   },
   {
     path: 'about',
