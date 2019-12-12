@@ -1,13 +1,16 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CalendarEvent, ViewPeriod} from 'calendar-utils';
 import moment from 'moment-timezone';
 import {
+  CalendarDateFormatter,
   CalendarDayViewBeforeRenderEvent, CalendarEventAction,
   CalendarMonthViewBeforeRenderEvent,
   CalendarView,
-  CalendarWeekViewBeforeRenderEvent
+  CalendarWeekViewBeforeRenderEvent,
+  DAYS_OF_WEEK
 } from 'angular-calendar';
 import {addDays, addHours, endOfMonth, isSameDay, isSameMonth, startOfDay, subDays} from 'date-fns';
+import {CustomDateFormatter} from './custom-date-formatter.provider';
 
 export const colors: any = {
   red: {
@@ -33,6 +36,8 @@ export class CalendarComponent implements OnInit {
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
   viewDate: Date = new Date();
+  locale = 'hu';
+  weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
 
   events: CalendarEvent[] = [
     {
@@ -91,6 +96,8 @@ export class CalendarComponent implements OnInit {
         this.activeDayIsOpen = true;
       }
       this.viewDate = date;
+    } else {
+      this.activeDayIsOpen = false;
     }
   }
 

@@ -18,11 +18,16 @@ import {BonfitTrainingComponent} from './pages/trainings/bonfit-training/bonfit-
 import {NgxDocViewerModule} from 'ngx-doc-viewer';
 import {AngularFireModule} from '@angular/fire';
 import {environment} from '../environments/environment';
-import {CalendarModule, DateAdapter} from 'angular-calendar';
+import {CalendarDateFormatter, CalendarModule, DateAdapter} from 'angular-calendar';
 import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
 import {TestComponent} from './pages/test/test.component';
 import {FormsModule} from '@angular/forms';
 import {FlatpickrModule} from 'angularx-flatpickr';
+import localeHu from '@angular/common/locales/hu';
+import {registerLocaleData} from '@angular/common';
+import {CustomDateFormatter} from './pages/calendar/custom-date-formatter.provider';
+
+registerLocaleData(localeHu, 'hu');
 
 @NgModule({
   declarations: [
@@ -53,7 +58,12 @@ import {FlatpickrModule} from 'angularx-flatpickr';
     NgbModule,
     NgxDocViewerModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: CalendarDateFormatter,
+      useClass: CustomDateFormatter
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

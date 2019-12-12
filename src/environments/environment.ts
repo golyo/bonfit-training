@@ -3,17 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  firebase: {
-    apiKey: 'AIzaSyCzxmxxrMy-KHYX4T3dxX_CtVPhQmumkyQ',
-    authDomain: 'bonfit-training.firebaseapp.com',
-    databaseURL: 'https://bonfit-training.firebaseio.com',
-    projectId: 'bonfit-training',
-    storageBucket: 'bonfit-training.appspot.com',
-    messagingSenderId: '923565027280',
-    appId: '1:923565027280:web:4c036ab1a2da79bbfe53d5',
-    measurementId: 'G-7YWXL26PEG'
-  }
+  production: false
 };
 
 /*
