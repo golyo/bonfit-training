@@ -1,31 +1,27 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CalendarEvent, ViewPeriod} from 'calendar-utils';
 import moment from 'moment-timezone';
 import {
-  CalendarDateFormatter,
-  CalendarDayViewBeforeRenderEvent, CalendarEventAction,
+  CalendarDayViewBeforeRenderEvent,
   CalendarMonthViewBeforeRenderEvent,
   CalendarView,
   CalendarWeekViewBeforeRenderEvent,
   DAYS_OF_WEEK
 } from 'angular-calendar';
 import {addDays, addHours, endOfMonth, isSameDay, isSameMonth, startOfDay, subDays} from 'date-fns';
-import {CustomDateFormatter} from './custom-date-formatter.provider';
+import RRule from 'rrule';
+import {Time} from '@angular/common';
+import {CalendarService} from '../../services/calendar.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-export const colors: any = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3'
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF'
-  },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA'
-  }
-};
+const testRule =
+  new RRule({
+    freq: RRule.WEEKLY,
+    dtstart: new Date(Date.UTC(2019, 11, 1, 0, 0, 0)),
+    until: new Date(Date.UTC(2019, 11, 31, 0, 0, 0)),
+    byweekday: [RRule.TU, RRule.TH]
+  });
+
 
 @Component({
   selector: 'app-calendar',
@@ -33,59 +29,27 @@ export const colors: any = {
   styleUrls: ['./calendar.component.scss']
 })
 export class CalendarComponent implements OnInit {
+  @ViewChild('modalContent', { static: true }) modalContent: TemplateRef<any>;
+
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
   viewDate: Date = new Date();
+  selectedEvent: CalendarEvent;
   locale = 'hu';
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
+  viewPeriod: ViewPeriod;
 
-  events: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: colors.red,
-      allDay: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
-      },
-      draggable: true
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: colors.yellow,
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: colors.blue,
-      allDay: true
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2),
-      title: 'A draggable and resizable event',
-      color: colors.yellow,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true
-      },
-      draggable: true
-    }
-  ];
+  events: CalendarEvent[] = [];
 
   activeDayIsOpen = true;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(private modal: NgbModal, private calendarService: CalendarService, private cdr: ChangeDetectorRef) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
-  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+  dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
       if (
         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
@@ -101,11 +65,42 @@ export class CalendarComponent implements OnInit {
     }
   }
 
-  setView(view: CalendarView) {
+  get isToday(): boolean {
+    return this.activeDayIsOpen === true && isSameDay(this.viewDate, new Date());
+  }
+
+  setView(view: CalendarView): void {
     this.view = view;
   }
 
-  closeOpenMonthViewDay() {
+  closeOpenMonthViewDay(): void {
     this.activeDayIsOpen = false;
+  }
+
+  setToday(): void {
+    this.activeDayIsOpen = true;
+  }
+
+  selectEvent(event: CalendarEvent): void {
+    this.selectedEvent = event;
+    this.modal.open(this.modalContent, { size: 'lg' });
+  }
+
+  updateCalendarEvents(
+    viewRender:
+      | CalendarMonthViewBeforeRenderEvent
+      | CalendarWeekViewBeforeRenderEvent
+      | CalendarDayViewBeforeRenderEvent
+  ): void {
+    if (
+      !this.viewPeriod ||
+      !moment(this.viewPeriod.start).isSame(viewRender.period.start) ||
+      !moment(this.viewPeriod.end).isSame(viewRender.period.end)
+    ) {
+      this.viewPeriod = viewRender.period;
+      this.calendarService.getEvents(viewRender.period.start, viewRender.period.end).subscribe(events => {
+        this.events = events;
+      });
+    }
   }
 }

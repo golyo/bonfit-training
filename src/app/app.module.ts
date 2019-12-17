@@ -26,6 +26,7 @@ import {FlatpickrModule} from 'angularx-flatpickr';
 import localeHu from '@angular/common/locales/hu';
 import {registerLocaleData} from '@angular/common';
 import {CustomDateFormatter} from './pages/calendar/custom-date-formatter.provider';
+import {CalendarService} from "./services/calendar.service";
 
 registerLocaleData(localeHu, 'hu');
 
@@ -53,7 +54,7 @@ registerLocaleData(localeHu, 'hu');
       provide: DateAdapter,
       useFactory: adapterFactory
     }),
-    AngularFireModule.initializeApp(environment.firebase),
+    // AngularFireModule.initializeApp(environment.firebase),
     AppRoutingModule,
     NgbModule,
     NgxDocViewerModule
@@ -62,7 +63,8 @@ registerLocaleData(localeHu, 'hu');
     {
       provide: CalendarDateFormatter,
       useClass: CustomDateFormatter
-    }
+    },
+    CalendarService
   ],
   bootstrap: [AppComponent]
 })

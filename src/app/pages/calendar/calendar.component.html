@@ -2,31 +2,33 @@
   <div class="row text-center">
     <div class="col-md-4">
       <div class="btn-group">
-        <div
+        <button
           class="btn btn-primary"
           mwlCalendarPreviousView
           [view]="view"
           [(viewDate)]="viewDate"
           (viewDateChange)="closeOpenMonthViewDay()"
         >
-          Previous
-        </div>
-        <div
-          class="btn btn-outline-secondary"
+          Előző
+        </button>
+        <button
+          class="btn btn-primary"
+          [disabled]="isToday"
           mwlCalendarToday
+          (viewDateChange)="setToday()"
           [(viewDate)]="viewDate"
         >
-          Today
-        </div>
-        <div
+          Ma
+        </button>
+        <button
           class="btn btn-primary"
           mwlCalendarNextView
           [view]="view"
           [(viewDate)]="viewDate"
           (viewDateChange)="closeOpenMonthViewDay()"
         >
-          Next
-        </div>
+          Következő
+        </button>
       </div>
     </div>
     <div class="col-md-4">
@@ -34,27 +36,27 @@
     </div>
     <div class="col-md-4">
       <div class="btn-group">
-        <div
+        <button
           class="btn btn-primary"
+          [disabled]="view === CalendarView.Month"
           (click)="setView(CalendarView.Month)"
-          [class.active]="view === CalendarView.Month"
         >
-          Month
-        </div>
-        <div
+          Hónap
+        </button>
+        <button
           class="btn btn-primary"
+          [disabled]="view === CalendarView.Week"
           (click)="setView(CalendarView.Week)"
-          [class.active]="view === CalendarView.Week"
         >
-          Week
-        </div>
-        <div
+          Hét
+        </button>
+        <button
           class="btn btn-primary"
+          [disabled]="view === CalendarView.Day"
           (click)="setView(CalendarView.Day)"
-          [class.active]="view === CalendarView.Day"
         >
-          Day
-        </div>
+          Nap
+        </button>
       </div>
     </div>
   </div>
@@ -64,33 +66,57 @@
       *ngSwitchCase="CalendarView.Month"
       [viewDate]="viewDate"
       [events]="events"
-      [refresh]="refresh"
       [activeDayIsOpen]="activeDayIsOpen"
       [locale]="locale"
       [weekStartsOn]="weekStartsOn"
       (dayClicked)="dayClicked($event.day)"
-      (eventTimesChanged)="eventTimesChanged($event)"
+      (eventClicked)="selectEvent($event.event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-month-view>
     <mwl-calendar-week-view
       *ngSwitchCase="CalendarView.Week"
       [viewDate]="viewDate"
       [events]="events"
-      [refresh]="refresh"
       [locale]="locale"
       [weekStartsOn]="weekStartsOn"
-      (eventTimesChanged)="eventTimesChanged($event)"
+      [dayStartHour]="8"
+      (eventClicked)="selectEvent($event.event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-week-view>
     <mwl-calendar-day-view
       *ngSwitchCase="CalendarView.Day"
       [viewDate]="viewDate"
       [events]="events"
-      [refresh]="refresh"
       [locale]="locale"
-      (eventTimesChanged)="eventTimesChanged($event)"
+      [dayStartHour]="8"
+      (eventClicked)="selectEvent($event.event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-day-view>
   </div>
 </div>
 
+<ng-template #modalContent let-close="close">
+  <div class="modal-header bg-success">
+    <h5 class="modal-title">{{ selectedEvent.title }}</h5>
+    <button type="button" class="btn btn-primary" (click)="close()">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>
+      {{ selectedEvent.meta.address.name }}<br/>
+      {{ selectedEvent.meta.address.place}}
+    </p>
+    <p>
+      {{ selectedEvent.meta.description }}<br/>
+    </p>
+  </div>
+  <div class="modal-footer bg-success">
+    <button type="button" class="btn btn-primary" (click)="close()">
+      OK
+    </button>
+  </div>
+</ng-template>
