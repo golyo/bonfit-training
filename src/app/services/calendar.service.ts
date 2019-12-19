@@ -1,75 +1,95 @@
 import {Injectable} from '@angular/core';
 import RRule from 'rrule';
 import {DecimalPipe, formatNumber, Time} from '@angular/common';
-import {from, Observable, of} from 'rxjs';
-import {CalendarEvent} from 'calendar-utils';
-import {concatMap, delay, flatMap, map, mergeMap} from 'rxjs/operators';
+import {from, Observable} from 'rxjs';
+import {CalendarEvent, EventColor} from 'calendar-utils';
+import {concatMap, delay, flatMap, map, mergeMap, take, tap} from 'rxjs/operators';
 import moment from 'moment-timezone';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Util} from './firebase.util';
+import {AuthService} from './security/auth.service';
+import {RecurringEvent} from '../dto/recurring-event.interface';
+import {TrainingEvent} from '../dto/training-event.interface';
+import {EventMember} from '../dto/user.dto';
 
-export const colors: any = {
-  red: {
-    primary: '#ad2121',
-    secondary: '#FAE3E3'
-  },
-  blue: {
-    primary: '#1e90ff',
-    secondary: '#D1E8FF'
-  },
-  yellow: {
-    primary: '#e3bc08',
-    secondary: '#FDF1BA'
-  }
+const DISABLED_COLOR: EventColor = {
+  primary: '#BBB',
+  secondary: '#BBB'
 };
-
-interface RecurringEvent {
-  title: string;
-  description: string;
-  color: any;
-  address: {
-    name: string;
-    place: string;
-  };
-  start: Time;
-  end: Time;
-  rrule?: {
-    freq: any;
-    bymonth?: number;
-    bymonthday?: number;
-    byweekday?: any;
-  };
-}
-
-const RECURRING_EVENTS: RecurringEvent[] = [
-  {
-    title: 'BonfitTraining 60\'',
-    description: 'Az edzések többnyire saját testsúlyos gyakorlatokra épülnek változatoseszközhasználattal kombinálva. ' +
-      'Ezek a TRX, Bosu, Fitt ball, Kettlebell,súlyzók, Gumikötelek, szalagok, Rope kötél, Plyobox, stb. ' +
-      'Nincsen két egyformaedzés. Nagy hangsúlyt fektetek a prevencióra, ezen belül az ízületek és agerinc védelmére. ' +
-      'Így minden edzésen találkozhatsz a mobilizációval és a core-stabilizációval,illetve az erősítő blokk mellett ' +
-      'a sztrecsing is minden edzés végén jelen van.',
-    address: {
-      name: 'Urban Dojo',
-      place: 'Budapest, Szív u. 11, 1063 Magyarország'
-    },
-    color: colors.blue,
-    start: {
-      hours: 18,
-      minutes: 0
-    },
-    end: {
-      hours: 19,
-      minutes: 0
-    },
-    rrule: {
-      freq: RRule.WEEKLY,
-      byweekday: [RRule.TU, RRule.TH]
-    }
-  },
-];
 
 @Injectable()
 export class CalendarService {
+  constructor(private db: AngularFirestore, private authService: AuthService) {
+  }
+
+  reactivateEvent(event: CalendarEvent): Promise<void> {
+    const parent = event.meta as RecurringEvent;
+    this.removeOldSkippedEvents(parent);
+    const idx = parent.skippedEvents.findIndex(date => date.getTime() === event.start.getTime());
+    parent.skippedEvents.splice(idx, 1);
+    event.cssClass = null;
+    return this.updateSkippedEvents(parent);
+  }
+
+  inactivateEvent(event: CalendarEvent): Promise<void> {
+    const parent = event.meta as RecurringEvent;
+    this.removeOldSkippedEvents(parent);
+    event.cssClass = 'disabled';
+    if (!parent.skippedEvents) {
+      parent.skippedEvents = [];
+    }
+    parent.skippedEvents.push(event.start);
+    return this.updateSkippedEvents(parent);
+  }
+
+  getTrainingEvent(event: CalendarEvent): Observable<TrainingEvent> {
+    const id = this.getEventDbId(event);
+    return this.db.collection('trainingEvents').doc<TrainingEvent>(id).valueChanges();
+  }
+
+  addContextUserToEvent(cevent: CalendarEvent, event: TrainingEvent): Promise<void> {
+    const id = this.getEventDbId(cevent);
+    const user = this.authService.getUser();
+    const member: EventMember = {
+      id: user.id,
+      name: user.name
+    };
+    if (!event) {
+      event = {
+        members: []
+      };
+    }
+    event.members.push(member);
+    return this.db.collection('trainingEvents').doc<TrainingEvent>(id).set(event);
+  }
+
+  removeContextUserFromEvent(cevent: CalendarEvent, event: TrainingEvent): Promise<void> {
+    const id = this.getEventDbId(cevent);
+    const user = this.authService.getUser();
+    event.members = event.members.filter(m => m.id !== user.id);
+    return this.db.collection('trainingEvents').doc<TrainingEvent>(id).set(event);
+  }
+
+  private getEventDbId(event: CalendarEvent) {
+    const parent = event.meta as RecurringEvent;
+    const start = event.start;
+    return parent.id + '_' + start.getFullYear() + start.getMonth() + start.getDay() + '_' + start.getHours() + start.getMinutes();
+  }
+
+  private removeOldSkippedEvents(parent: RecurringEvent) {
+    const yearCheck = new Date();
+    yearCheck.setFullYear(yearCheck.getFullYear() - 1);
+    const timeLimit = yearCheck.getTime();
+    parent.skippedEvents = parent.skippedEvents.filter(date => date.getTime() > timeLimit);
+  }
+
+  private updateSkippedEvents(parent: RecurringEvent) {
+    const skippedObject: Partial<RecurringEvent> = {skippedEvents: parent.skippedEvents};
+    return this.db.collection<RecurringEvent>('recurringEvents').doc(parent.id).update(skippedObject);
+  }
+
   getEvents(start: Date, end: Date): Observable<CalendarEvent<RecurringEvent>[]> {
+    const isAdmin = this.authService.isAdmin;
     return this.getRecurringEvents().pipe(map(recurringEvents => {
       const events = [];
       recurringEvents.forEach(revent => {
@@ -82,15 +102,20 @@ export class CalendarService {
           until: moment(end).endOf('day').toDate()
         });
         rule.all().forEach(date => {
-          const endTime = moment(date).toDate();
-          endTime.setHours(revent.end.hours, revent.end.minutes);
-          events.push({
-            title,
-            color: revent.color,
-            meta: revent,
-            start: moment(date).toDate(),
-            end: endTime
-          });
+          const isSkipped = revent.skippedEvents.some(check => check.getTime() === date.getTime());
+          if (!isSkipped || isAdmin) {
+            const endTime = moment(date).toDate();
+            endTime.setHours(revent.end.hours, revent.end.minutes);
+
+            events.push({
+              title,
+              color: isSkipped ? DISABLED_COLOR : revent.color,
+              meta: revent,
+              start: moment(date).toDate(),
+              end: endTime,
+              cssClass: isSkipped ? 'disabled' : null
+            });
+          }
         });
       });
       return events;
@@ -106,6 +131,9 @@ export class CalendarService {
   }
 
   private getRecurringEvents(): Observable<RecurringEvent[]> {
-    return of(RECURRING_EVENTS);
+    return this.db.collection<RecurringEvent>('recurringEvents').snapshotChanges().pipe(map(Util.resultsToObjects),
+      tap(events => events.map(event => Util.timestampsToDate(event, 'skippedEvents'))));
+    // return of(RECURRING_EVENTS);
   }
+
 }

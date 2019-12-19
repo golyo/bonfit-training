@@ -26,7 +26,12 @@ import {FlatpickrModule} from 'angularx-flatpickr';
 import localeHu from '@angular/common/locales/hu';
 import {registerLocaleData} from '@angular/common';
 import {CustomDateFormatter} from './pages/calendar/custom-date-formatter.provider';
-import {CalendarService} from "./services/calendar.service";
+import {CalendarService} from './services/calendar.service';
+import {AngularFirestoreModule} from '@angular/fire/firestore';
+import {AuthService} from './services/security/auth.service';
+import {AngularFireAuth, AngularFireAuthModule} from '@angular/fire/auth';
+import {LoginComponent} from "./pages/login/login.component";
+import {AuthIdResolver} from './services/security/authId.resolver';
 
 registerLocaleData(localeHu, 'hu');
 
@@ -43,7 +48,8 @@ registerLocaleData(localeHu, 'hu');
     TriplexOfficeComponent,
     TriplexMobilityComponent,
     BonfitTrainingComponent,
-    TestComponent
+    TestComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -54,7 +60,9 @@ registerLocaleData(localeHu, 'hu');
       provide: DateAdapter,
       useFactory: adapterFactory
     }),
-    // AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireAuthModule,
     AppRoutingModule,
     NgbModule,
     NgxDocViewerModule
@@ -64,7 +72,9 @@ registerLocaleData(localeHu, 'hu');
       provide: CalendarDateFormatter,
       useClass: CustomDateFormatter
     },
-    CalendarService
+    AuthIdResolver,
+    CalendarService,
+    AuthService
   ],
   bootstrap: [AppComponent]
 })

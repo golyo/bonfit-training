@@ -113,6 +113,18 @@
     <p>
       {{ selectedEvent.meta.description }}<br/>
     </p>
+    <p>
+      Résztvevők:
+    </p>
+    <ul *ngIf="trainingEvent">
+      <li *ngFor="let member of trainingEvent.members">{{ member.name }}</li>
+    </ul>
+    <p>
+      <button *ngIf="isAdmin && selectedEvent.cssClass === 'disabled'" class="btn btn-primary" (click)="reactivateEvent()">Reaktivál</button>
+      <button *ngIf="isAdmin && selectedEvent.cssClass !== 'disabled'"  class="btn btn-primary" (click)="inactivateEvent()">Inaktivál</button>
+      <button *ngIf="!hasMembership" class="btn btn-primary" (click)="addMyselfToEvent()">Jelentkezés</button>
+      <button *ngIf="hasMembership" class="btn btn-primary" (click)="removeMyselfFromEvent()">Leiratkozás</button>
+    </p>
   </div>
   <div class="modal-footer bg-success">
     <button type="button" class="btn btn-primary" (click)="close()">

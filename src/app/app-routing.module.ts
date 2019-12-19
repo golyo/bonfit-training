@@ -11,6 +11,8 @@ import {BonfitTrainingComponent} from './pages/trainings/bonfit-training/bonfit-
 import {TriplexOfficeComponent} from './pages/trainings/triplex-office/triplex-office.component';
 import {TriplexMobilityComponent} from './pages/trainings/triplex-mobility/triplex-mobility.component';
 import {TestComponent} from './pages/test/test.component';
+import {LoginComponent} from './pages/login/login.component';
+import {AuthIdResolver} from './services/security/authId.resolver';
 
 
 const routes: Routes = [
@@ -23,6 +25,11 @@ const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     data: { animation: 'home' }
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    data: { animation: 'login' }
   },
   {
     path: 'myself',
@@ -57,7 +64,10 @@ const routes: Routes = [
   {
     path: 'calendar',
     component: CalendarComponent,
-    data: { animation: 'calendar' }
+    data: { animation: 'calendar' },
+    resolve: {
+      userId: AuthIdResolver
+    }
   },
   {
     path: 'blog',

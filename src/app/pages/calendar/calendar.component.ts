@@ -13,6 +13,11 @@ import RRule from 'rrule';
 import {Time} from '@angular/common';
 import {CalendarService} from '../../services/calendar.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {colors} from '@angular/cli/utilities/color';
+import {TrainingEvent} from '../../dto/training-event.interface';
+import {take} from 'rxjs/operators';
+import {AuthService} from '../../services/security/auth.service';
+import {Router} from '@angular/router';
 
 const testRule =
   new RRule({
@@ -35,6 +40,8 @@ export class CalendarComponent implements OnInit {
   CalendarView = CalendarView;
   viewDate: Date = new Date();
   selectedEvent: CalendarEvent;
+  trainingEvent: TrainingEvent;
+  hasMembership: boolean;
   locale = 'hu';
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
   viewPeriod: ViewPeriod;
@@ -43,7 +50,8 @@ export class CalendarComponent implements OnInit {
 
   activeDayIsOpen = true;
 
-  constructor(private modal: NgbModal, private calendarService: CalendarService, private cdr: ChangeDetectorRef) {
+  constructor(private modal: NgbModal, private calendarService: CalendarService,
+              private authService: AuthService, private router: Router) {
   }
 
   ngOnInit(): void {
@@ -65,6 +73,10 @@ export class CalendarComponent implements OnInit {
     }
   }
 
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
+  }
+
   get isToday(): boolean {
     return this.activeDayIsOpen === true && isSameDay(this.viewDate, new Date());
   }
@@ -84,6 +96,34 @@ export class CalendarComponent implements OnInit {
   selectEvent(event: CalendarEvent): void {
     this.selectedEvent = event;
     this.modal.open(this.modalContent, { size: 'lg' });
+    this.calendarService.getTrainingEvent(event).pipe(take(1)).subscribe(trEvent => {
+      this.trainingEvent = trEvent;
+      const user = this.authService.getUser();
+      this.hasMembership = user && trEvent && trEvent.members.some(m => m.id === user.id);
+    });
+  }
+
+  addMyselfToEvent(): void {
+    if (this.authService.getUser()) {
+      this.calendarService.addContextUserToEvent(this.selectedEvent, this.trainingEvent).then();
+      this.hasMembership = true;
+    } else {
+      this.modal.dismissAll();
+      this.router.navigateByUrl('/login').then();
+    }
+  }
+
+  removeMyselfFromEvent(): void {
+    this.calendarService.removeContextUserFromEvent(this.selectedEvent, this.trainingEvent).then();
+    this.hasMembership = false;
+  }
+
+  inactivateEvent(): void {
+    this.calendarService.inactivateEvent(this.selectedEvent).then();
+  }
+
+  reactivateEvent(): void {
+    this.calendarService.reactivateEvent(this.selectedEvent).then();
   }
 
   updateCalendarEvents(
